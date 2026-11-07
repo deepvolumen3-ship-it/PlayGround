@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f1e7">
+  <title>Little Life — A Tiny Home Story</title>
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <main id="game" aria-label="Little Life life simulation game">
+    <canvas id="world"></canvas>
+    <div class="topbar">
+      <div class="brand"><div class="brand-mark">✿</div><div><strong>little life</strong><small>YOUR TINY HOME STORY</small></div></div>
+      <div class="day-pill"><span class="sun">☀</span><span id="dayLabel">MONDAY</span><b id="timeLabel">08:00 AM</b></div>
+      <div class="money-pill"><span>✦</span><b id="moneyLabel">§ 1,250</b></div>
+    </div>
+    <div class="left-controls">
+      <button id="zoomIn" class="round-btn" aria-label="Zoom in">＋</button>
+      <button id="zoomOut" class="round-btn" aria-label="Zoom out">−</button>
+      <button id="homeView" class="round-btn" aria-label="Center home">⌂</button>
+    </div>
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <section class="sim-card">
+      <div class="sim-heading"><div class="avatar" id="avatar">M</div><div><strong id="simName">Milo</strong><span id="simMood">Feeling pretty good</span></div><button id="editSim" class="icon-btn" aria-label="Edit Sim">✎</button></div>
+      <div class="needs" id="needs"></div>
+    </section>
+    <div id="actionBubble" class="action-bubble hidden"></div>
+    <section id="actionPanel" class="action-panel hidden">
+      <div class="panel-head"><div><span class="eyebrow" id="objectKind">AT HOME</span><h2 id="objectName">Object</h2></div><button id="closePanel" class="close-btn" aria-label="Close">×</button></div>
+      <div id="objectDesc" class="object-desc"></div><div id="actions" class="action-list"></div>
+    </section>
+    <section id="buildPanel" class="build-panel hidden">
+      <div class="build-head"><div><span class="eyebrow">MAKE IT YOURS</span><h2>Home catalog</h2></div><button id="closeBuild" class="close-btn" aria-label="Close catalog">×</button></div>
+      <div id="catalog" class="catalog"></div>
+      <div class="build-hint">Tap an item, then tap an open spot in your home to place it.</div>
+    </section>
+    <div id="placementBar" class="placement-bar hidden"><span>Place your item in an open spot</span><button id="rotateItem">↻ Rotate</button><button id="cancelPlace">Cancel</button></div>
+    <div class="bottom-bar">
+      <div class="bottom-left"><button id="buildButton" class="tool-button"><span>＋</span><b>Build</b></button><button id="goalsButton" class="tool-button"><span>✧</span><b>Wishes</b></button></div>
+      <div class="sim-status" id="statusLabel"><span class="status-dot"></span><span>Home sweet home</span></div>
+      <div class="time-controls"><button id="pauseButton" aria-label="Pause">Ⅱ</button><button class="speed active" data-speed="1">▶</button><button class="speed" data-speed="2">▶▶</button><button class="speed" data-speed="3">▶▶▶</button></div>
+    </div>
+    <div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close-btn modal-close">×</button><span class="eyebrow">A LITTLE LIFE</span><h2 id="modalTitle">Your wishes</h2><div id="modalContent"></div></div></div>
+    <div id="startScreen" class="start-screen"><div class="start-card"><div class="start-flower">✿</div><span class="eyebrow">A TINY HOME STORY</span><h1>Make a life<br>of the little things.</h1><p>Meet Milo, settle into a cozy home, and see where the day takes you.</p><button id="startButton">Come on in <span>→</span></button><small>Made for little screens & big daydreams</small></div></div>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
