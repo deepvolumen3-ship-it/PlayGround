@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#080d0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Commandos: Realist — Operation Nightfall</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="game" aria-label="Isometric stealth tactics battlefield"></canvas>
+  <div id="grain" aria-hidden="true"></div>
+  <div id="vignette" aria-hidden="true"></div>
+
+  <!-- ============ HUD ============ -->
+  <div id="hud" aria-hidden="true">
+    <header class="topbar">
+      <div class="mission-tag">
+        <span class="tag-kicker">MISSION 01</span>
+        <span class="tag-name">OPERATION NIGHTFALL</span>
+        <span class="tag-loc">NORTH AFRICA · 02:40</span>
+      </div>
+      <div id="threat" class="threat is-clear">
+        <span class="threat-dot"></span>
+        <span id="threatText">UNDETECTED</span>
+        <span id="clock" class="clock">00:00</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="btnSound" aria-label="Toggle sound" title="Sound (M)">
+          <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/><path d="M14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
+        </button>
+        <button class="icon-btn" id="btnHelp" aria-label="How to play" title="How to play (H)">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.1 15.6a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6zm1.7-6.1c-.8.6-1.1 1-1.1 1.9h-1.9c0-1.6.5-2.3 1.7-3.1.7-.5 1-.9 1-1.6 0-.8-.6-1.3-1.5-1.3s-1.5.5-1.6 1.5H8.5c.1-2 1.5-3.3 3.6-3.3 2 0 3.4 1.2 3.4 3 0 1.3-.6 2.1-1.7 2.9z"/></svg>
+        </button>
+        <button class="icon-btn" id="btnPause" aria-label="Pause game" title="Pause (Esc)">
+          <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <aside class="objectives panel" id="objectivesPanel">
+      <div class="panel-head"><span>OBJECTIVES</span><span class="panel-code">OP-01</span></div>
+      <ul id="objectiveList">
+        <li data-obj="intel"><span class="obj-mark"></span><span class="obj-text">Recover the battle plans</span></li>
+        <li data-obj="radio"><span class="obj-mark"></span><span class="obj-text">Destroy the radio tower</span></li>
+        <li data-obj="extract" class="locked"><span class="obj-mark"></span><span class="obj-text">Extract the squad</span></li>
+        <li data-obj="pow" class="optional"><span class="obj-mark"></span><span class="obj-text">Free the prisoner <em>OPTIONAL</em></span></li>
+      </ul>
+      <div class="obj-foot"><span id="objCount">0 / 2</span><span class="obj-line"></span><span id="objHint">INFILTRATE THE COMPOUND</span></div>
+    </aside>
+
+    <div class="minimap-wrap panel">
+      <div class="mini-head"><span>SECTOR 7</span><span id="miniCoords">12 · 45</span></div>
+      <canvas id="minimap" width="200" height="200"></canvas>
+      <div class="mini-scan" aria-hidden="true"></div>
+    </div>
+
+    <div id="toast" role="status"></div>
+    <div id="hint" class="hint">
+      <span class="hint-key">FIELD NOTE</span>
+      <span id="hintText">Tap the ground to move. Stay out of searchlights and guard sight cones.</span>
+    </div>
+
+    <div class="bottombar">
+      <div class="squadbar" id="squadbar">
+        <div class="squad-title"><span>SQUAD</span><button id="btnAll" class="mini-btn" title="Select whole squad (0)">ALL</button></div>
+        <div class="cards" id="unitCards"></div>
+      </div>
+
+      <div class="actionbar" id="actionbar">
+        <button class="act" id="btnCrouch" data-act="crouch" aria-label="Toggle crouch">
+          <svg viewBox="0 0 32 32"><circle cx="16" cy="7" r="3.2"/><path d="M11 13.5c2-1.5 8-1.5 10 0l2 7.5-3 1-2-5.5-2 6 4 6h-3.2l-3.3-5-2.8 5H7.4l3.2-8.5z"/></svg>
+          <span>CROUCH</span>
+        </button>
+        <button class="act" id="btnKnife" data-act="knife" aria-label="Silent knife kill">
+          <svg viewBox="0 0 32 32"><path d="M6 25l4-1 15-15 2-3-3 1L8 22l-2 3zm2.5 1.5 2 2 3-3-2-2z"/><path d="M5 27l3 1-1 3-3-3z"/></svg>
+          <span>KNIFE</span>
+        </button>
+        <button class="act" id="btnGrenade" data-act="grenade" aria-label="Throw grenade">
+          <svg viewBox="0 0 32 32"><circle cx="16" cy="19" r="8"/><path d="M12 10h8l1 4h-10zm5-6h5v2h-3v2h-2z"/><path d="M21 7l4 4-1.5 1.5-4-4z"/></svg>
+          <span>GRENADE<em id="grenadeCount"></em></span>
+        </button>
+        <button class="act" id="btnUse" data-act="use" aria-label="Use or interact">
+          <svg viewBox="0 0 32 32"><path d="M10 6h12a2 2 0 0 1 2 2v18H8V8a2 2 0 0 1 2-2zm2 3v4h8V9zm0 7v2h8v-2zm0 4v2h5v-2z"/></svg>
+          <span>USE</span>
+        </button>
+        <button class="act" id="btnHold" data-act="hold" aria-label="Hold position">
+          <svg viewBox="0 0 32 32"><path d="M10 4h12v13a6 6 0 0 1-12 0zM7 6h2v10H7zm16 0h2v10h-2zM14 21h4v7h-4z"/></svg>
+          <span>HOLD</span>
+        </button>
+        <button class="act" id="btnCenter" data-act="center" aria-label="Center on selected soldier">
+          <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="6"/><path d="M16 2v6m0 16v6M2 16h6m16 0h6" stroke="currentColor" stroke-width="2.5" fill="none"/></svg>
+          <span>CENTER</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ START SCREEN ============ -->
+  <section id="startScreen">
+    <div class="start-shade" aria-hidden="true"></div>
+    <div class="start-scan" aria-hidden="true"></div>
+    <div class="start-topline">
+      <span class="stamp">CLASSIFIED</span>
+      <span class="start-coord">36°14'N · 06°32'E</span>
+      <span class="start-net">NET: 07 — 1942</span>
+    </div>
+
+    <div class="start-inner">
+      <div class="start-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> REAL-TIME STEALTH TACTICS</div>
+        <h1 class="logo">
+          <span class="logo-main">COMMANDOS</span>
+          <span class="logo-sub"><i>REALIST</i><b>BEHIND ENEMY LINES</b></span>
+        </h1>
+        <p class="start-lede">Three men. One fortress. No second chances.<br>
+        Infiltrate the coastal compound, cut its communications, and vanish before dawn.</p>
+
+        <div class="dossier">
+          <div class="dossier-stripe"></div>
+          <div class="dossier-row"><span>MISSION</span><b>01 — OPERATION NIGHTFALL</b></div>
+          <div class="dossier-row"><span>LOCATION</span><b>NORTH AFRICAN COAST · 02:40</b></div>
+          <div class="dossier-row"><span>EXFIL</span><b>NORTH RIDGE · GREEN SMOKE</b></div>
+        </div>
+
+        <div class="start-actions">
+          <button id="btnStart" class="btn-primary" aria-label="START GAME">START GAME</button>
+          <button id="btnHow" class="btn-ghost" aria-label="How to play">HOW TO PLAY</button>
+        </div>
+        <div class="start-note">
+          <span class="dot-live"></span> TOUCH CONTROLS READY
+          <span class="sep">/</span> HEADPHONES RECOMMENDED
+          <span class="sep">/</span> <button id="btnSoundStart" class="link-btn" aria-label="Toggle sound">SOUND: ON</button>
+        </div>
+      </div>
+
+      <div class="start-stats" aria-hidden="true">
+        <div class="stat"><span class="stat-k">SQUAD</span><span class="stat-v">03</span></div>
+        <div class="stat"><span class="stat-k">ENEMY</span><span class="stat-v">12+</span></div>
+        <div class="stat"><span class="stat-k">ALARM</span><span class="stat-v">NONE</span></div>
+        <div class="sweep"><i></i></div>
+      </div>
+    </div>
+
+    <div class="start-foot">
+      <span>© 1942 — SPECIAL OPERATIONS EXECUTIVE</span>
+      <span class="foot-mid">SABOTAGE · SUBTERFUGE · SURVIVAL</span>
+      <span>BUILD 1.0 · ANDROID / DESKTOP</span>
+    </div>
+  </section>
+
+  <!-- ============ HELP ============ -->
+  <div id="helpScreen" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal help-modal">
+      <div class="modal-top"><span class="modal-kicker">FIELD MANUAL / 07</span><button class="close-btn" data-close="help" aria-label="Close">×</button></div>
+      <h2 id="helpTitle">HOW TO OPERATE</h2>
+      <div class="help-grid">
+        <div class="help-col">
+          <h3>MOVEMENT</h3>
+          <p><b>Tap the ground</b> to move the selected soldier. Tap a soldier or portrait to select. Use <b>ALL</b> to move the squad in formation.</p>
+          <p><b>Drag</b> empty ground to pan. <b>Pinch</b> to zoom. <b>Drag</b> the minimap to reposition the camera.</p>
+          <p><b>CROUCH</b> slows movement and halves your visibility, especially inside bushes.</p>
+          <h3>STEALTH</h3>
+          <p>Guards have amber vision cones. Avoid them, and avoid the sweeping searchlights. A guard who fills his suspicion meter raises the alarm.</p>
+          <p>Approach an unaware guard from behind and use <b>KNIFE</b> for a silent kill. Bodies do not raise alarms.</p>
+        </div>
+        <div class="help-col">
+          <h3>COMBAT</h3>
+          <p>Tap a guard to fire. Gunfire is loud and alerts every soldier nearby. The sniper has long range and lethal accuracy, but a slow rifle.</p>
+          <p>The sapper carries <b>3 grenades</b>. Arm one, then tap the target ground. Frags wound everyone in the blast.</p>
+          <h3>OBJECTIVES</h3>
+          <p>Take the battle plans from the <b>command bunker</b>. Plant a satchel on the <b>radio tower</b> with the sapper. Then bring every living soldier to the <b>green smoke</b> on the north ridge.</p>
+          <p>Free the prisoner in the side pen for a bonus. If every soldier falls, the mission is lost.</p>
+        </div>
+      </div>
+      <div class="help-keys">
+        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> select</span>
+        <span><kbd>0</kbd> whole squad</span>
+        <span><kbd>Q</kbd> crouch</span>
+        <span><kbd>F</kbd> knife</span>
+        <span><kbd>G</kbd> grenade</span>
+        <span><kbd>E</kbd> use</span>
+        <span><kbd>WASD</kbd> pan</span>
+        <span><kbd>M</kbd> mute</span>
+      </div>
+      <button class="btn-primary wide" data-close="help">BACK TO THE FIELD</button>
+    </div>
+  </div>
+
+  <!-- ============ PAUSE ============ -->
+  <div id="pauseScreen" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="modal pause-modal">
+      <span class="modal-kicker">OPERATION SUSPENDED</span>
+      <h2 id="pauseTitle">HOLD POSITION</h2>
+      <p class="modal-copy">The clock is stopped. Your squad is waiting in the dark.</p>
+      <div class="pause-actions">
+        <button id="btnResume" class="btn-primary">RESUME</button>
+        <button id="btnRestartPause" class="btn-ghost">RESTART MISSION</button>
+        <button id="btnMenuPause" class="btn-ghost">ABORT TO MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ END ============ -->
+  <div id="endScreen" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <div class="modal end-modal">
+      <span class="modal-kicker" id="endKicker">MISSION COMPLETE</span>
+      <h2 id="endTitle">NIGHTFALL</h2>
+      <p class="modal-copy" id="endCopy">The radio tower is silent. The plans are secure. The squad slipped into the dark.</p>
+      <div class="end-stats" id="endStats"></div>
+      <div class="end-actions">
+        <button id="btnReplay" class="btn-primary">PLAY AGAIN</button>
+        <button id="btnMenuEnd" class="btn-ghost">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="rotateNote" aria-hidden="true">LANDSCAPE GIVES A WIDER VIEW</div>
+</div>
+<script type="module" src="src/game.js"></script>
+</body>
+</html>
